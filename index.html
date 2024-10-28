@@ -71,6 +71,33 @@
                 loginForm.style.display = 'block';
             }
         }
+
+        // Manejador del formulario de registro
+        document.getElementById('register-form').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Evita el comportamiento por defecto del formulario
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const nick = document.getElementById('nick').value;
+
+            await registerUser(email, password, nick); // Llama a la función de registro
+
+            // Redirigir a home.html
+            window.location.href = 'home.html'; 
+        });
+
+        // Manejador del formulario de inicio de sesión
+        document.getElementById('login-form').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Evita el comportamiento por defecto del formulario
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            await loginUser(email, password); // Llama a la función de inicio de sesión
+
+            // Redirigir a home.html
+            window.location.href = 'home.html'; 
+        });
     </script>
 </body>
 </html>
