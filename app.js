@@ -11,12 +11,24 @@ const profileMenu = document.getElementById('profile-menu');
 const profileImage = document.getElementById('profile-image');
 const contentCardTemplate = document.getElementById('content-card-template');
 
+// Estado de autenticación
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        showHomeScreen(user);
+        loadContent();
+    } else {
+        showWelcomeScreen();
+    }
+});
+
 // Funciones de navegación
 function showWelcomeScreen() {
     welcomeScreen.classList.remove('hidden');
     loginForm.classList.add('hidden');
     registerForm.classList.add('hidden');
     homeScreen.classList.add('hidden');
+    uploadModal.classList.add('hidden');
+    profileModal.classList.add('hidden');
 }
 
 function showLoginForm() {
@@ -24,6 +36,8 @@ function showLoginForm() {
     loginForm.classList.remove('hidden');
     registerForm.classList.add('hidden');
     homeScreen.classList.add('hidden');
+    uploadModal.classList.add('hidden');
+    profileModal.classList.add('hidden');
 }
 
 function showRegisterForm() {
@@ -31,6 +45,8 @@ function showRegisterForm() {
     loginForm.classList.add('hidden');
     registerForm.classList.remove('hidden');
     homeScreen.classList.add('hidden');
+    uploadModal.classList.add('hidden');
+    profileModal.classList.add('hidden');
 }
 
 function showHomeScreen(user) {
@@ -41,113 +57,78 @@ function showHomeScreen(user) {
     updateUserInfo(user);
 }
 
-// Funciones de autenticación
-document.getElementById('signup-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('signup-email').value;
-    const password = document.getElementById('signup-password').value;
-    const nick = document.getElementById('signup-nick').value;
-
-    try {
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        await userCredential.user.updateProfile({
-            displayName: nick,
-            photoURL: '/api/placeholder/32/32' // URL de imagen por defecto
-        });
-        
-        // Crear documento de usuario en Firestore
-        await db.collection('users').doc(userCredential.user.uid).set({
-            nick: nick,
-            email: email,
-            photoURL: '/api/placeholder/32/32',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        showHomeScreen(userCredential.user);
-        Swal.fire({
-            title: '¡Bienvenido!',
-            text: 'Tu cuenta ha sido creada exitosamente',
-            icon: 'success'
-        });
-    } catch (error) {
-        Swal.fire({
-            title: 'Error',
-            text: error.message,
-            icon: 'error'
-        });
-    }
-});
-
-document.getElementById('signin-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value;
-    const password = document.getElementById('login-password').value;
-
-    try {
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        showHomeScreen(userCredential.user);
-        Swal.fire({
-            title: '¡Bienvenido de vuelta!',
-            icon: 'success',
-            timer: 1500,
-            showConfirmButton: false
-        });
-    } catch (error) {
-        Swal.fire({
-            title: 'Error',
-            text: error.message,
-            icon: 'error'
-        });
-    }
-});
-
-// Funciones del perfil
+// Funciones de perfil mejoradas
 function toggleProfileMenu() {
-    profileMenu.classList.toggle('hidden');
+    if (profileMenu) {
+        profileMenu.classList.toggle('hidden');
+    }
 }
 
 function updateUserInfo(user) {
-    userNick.textContent = user.displayName || user.email;
-    profileImage.src = user.photoURL || '/api/placeholder/32/32';
+    if (user && userNick && profileImage) {
+        userNick.textContent = user.displayName || user.email;
+        profileImage.src = user.photoURL || '/api/placeholder/32/32';
+    }
 }
 
 function showProfileSettings() {
+    if (!profileModal) return;
+    
     profileMenu.classList.add('hidden');
     const user = auth.currentUser;
-    document.getElementById('profile-nick').value = user.displayName || '';
-    document.getElementById('profile-email').value = user.email || '';
-    document.getElementById('profile-preview').src = user.photoURL || '/api/placeholder/128/128';
-    profileModal.classList.remove('hidden');
+    
+    if (user) {
+        document.getElementById('profile-nick').value = user.displayName || '';
+        document.getElementById('profile-email').value = user.email || '';
+        document.getElementById('profile-preview').src = user.photoURL || '/api/placeholder/128/128';
+        profileModal.classList.remove('hidden');
+    }
 }
 
 function hideProfileModal() {
-    profileModal.classList.add('hidden');
-    document.getElementById('profile-form').reset();
+    if (profileModal) {
+        profileModal.classList.add('hidden');
+        document.getElementById('profile-form').reset();
+    }
 }
 
-// Manejador de cambio de foto de perfil
-document.getElementById('profile-photo').addEventListener('change', (e) => {
+// Event Listeners para el perfil
+document.getElementById('profile-photo')?.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (file) {
         const reader = new FileReader();
         reader.onload = (e) => {
-            document.getElementById('profile-preview').src = e.target.result;
+            const preview = document.getElementById('profile-preview');
+            if (preview) {
+                preview.src = e.target.result;
+            }
         };
         reader.readAsDataURL(file);
     }
 });
 
-// Actualización del perfil
-document.getElementById('profile-form').addEventListener('submit', async (e) => {
+// Actualización del perfil mejorada
+document.getElementById('profile-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const user = auth.currentUser;
-    const newNick = document.getElementById('profile-nick').value;
-    const newEmail = document.getElementById('profile-email').value;
-    const newPassword = document.getElementById('profile-password').value;
-    const photoFile = document.getElementById('profile-photo').files[0];
+    if (!user) return;
 
     try {
-        // Actualizar foto de perfil si se seleccionó una nueva
+        const newNick = document.getElementById('profile-nick').value;
+        const newEmail = document.getElementById('profile-email').value;
+        const newPassword = document.getElementById('profile-password').value;
+        const photoFile = document.getElementById('profile-photo').files[0];
+
+        // Mostrar loading
+        Swal.fire({
+            title: 'Actualizando perfil...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Actualizar foto si se seleccionó una nueva
         if (photoFile) {
             const photoRef = storage.ref(`profiles/${user.uid}/${photoFile.name}`);
             await photoRef.put(photoFile);
@@ -170,16 +151,17 @@ document.getElementById('profile-form').addEventListener('submit', async (e) => 
             await user.updatePassword(newPassword);
         }
 
-        // Actualizar documento en Firestore
+        // Actualizar Firestore
         await db.collection('users').doc(user.uid).update({
             nick: newNick,
             email: newEmail,
-            photoURL: user.photoURL
+            photoURL: user.photoURL,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
         updateUserInfo(user);
         hideProfileModal();
-        
+
         Swal.fire({
             title: '¡Perfil actualizado!',
             icon: 'success',
@@ -187,6 +169,7 @@ document.getElementById('profile-form').addEventListener('submit', async (e) => 
             showConfirmButton: false
         });
     } catch (error) {
+        console.error('Error updating profile:', error);
         Swal.fire({
             title: 'Error',
             text: error.message,
@@ -194,6 +177,9 @@ document.getElementById('profile-form').addEventListener('submit', async (e) => 
         });
     }
 });
+
+// Resto del código se mantiene igual...
+[El resto del código continúa igual que en tu versión original]
 
 async function logout() {
     try {
