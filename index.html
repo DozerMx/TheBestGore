@@ -2,180 +2,171 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>TheForoBestGore - Inicio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheForo - Comparte tus momentos</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <!-- Contenedor principal -->
-    <div class="container">
-        <!-- Sección de bienvenida -->
-        <div class="welcome-section">
-            <h1>Bienvenido a TheForoBestGore</h1>
-            <p>La comunidad donde puedes compartir y ver contenido exclusivo. Regístrate o inicia sesión para comenzar.</p>
-            <div class="button-group">
-                <button onclick="toggleForms('register')">Registrarse</button>
-                <button onclick="toggleForms('login')">Iniciar Sesión</button>
+<body class="bg-gray-100">
+    <!-- Pantalla de Inicio (visible cuando no hay sesión) -->
+    <div id="welcome-screen" class="min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+            <h1 class="text-3xl font-bold text-center mb-6">Bienvenido a TheForo</h1>
+            <div class="space-y-4">
+                <button onclick="showLoginForm()" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                    Iniciar Sesión
+                </button>
+                <button onclick="showRegisterForm()" class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">
+                    Registrarse
+                </button>
             </div>
         </div>
+    </div>
 
-        <!-- Formulario de Registro -->
-        <div id="registerForm" class="form-section" style="display: none;">
-            <h2>Registrarse</h2>
-            <form id="register-form">
-                <label for="email">Correo Electrónico:</label>
-                <input type="email" id="email" placeholder="Ingresa tu correo" required>
-
-                <label for="nick">Nick (Nombre de Usuario):</label>
-                <input type="text" id="nick" placeholder="Ingresa un nombre de usuario" required>
-
-                <label for="password">Contraseña:</label>
-                <input type="password" id="password" placeholder="Ingresa una contraseña segura" required>
-
-                <button type="submit">Registrarse</button>
-                <p>¿Ya tienes una cuenta? <span onclick="toggleForms('login')" class="link">Iniciar Sesión</span></p>
-            </form>
-        </div>
-
-        <!-- Formulario de Inicio de Sesión -->
-        <div id="loginForm" class="form-section" style="display: none;">
-            <h2>Iniciar Sesión</h2>
-            <form id="login-form">
-                <label for="login-email">Correo Electrónico:</label>
-                <input type="email" id="login-email" placeholder="Ingresa tu correo" required>
-
-                <label for="login-password">Contraseña:</label>
-                <input type="password" id="login-password" placeholder="Ingresa tu contraseña" required>
-
-                <button type="submit">Iniciar Sesión</button>
-                <p>¿No tienes una cuenta? <span onclick="toggleForms('register')" class="link">Registrarse</span></p>
+    <!-- Formulario de Registro -->
+    <div id="register-form" class="hidden min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+            <h2 class="text-2xl font-bold text-center mb-6">Registro</h2>
+            <form id="signup-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="signup-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nick</label>
+                    <input type="text" id="signup-nick" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Contraseña</label>
+                    <input type="password" id="signup-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                </div>
+                <button type="submit" class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">
+                    Crear Cuenta
+                </button>
+                <p class="text-center text-sm">
+                    ¿Ya tienes cuenta? 
+                    <a href="#" onclick="showLoginForm()" class="text-blue-500 hover:text-blue-600">Inicia Sesión</a>
+                </p>
             </form>
         </div>
     </div>
 
-    <!-- Firebase App (la base principal de Firebase) -->
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+    <!-- Formulario de Login -->
+    <div id="login-form" class="hidden min-h-screen flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+            <h2 class="text-2xl font-bold text-center mb-6">Iniciar Sesión</h2>
+            <form id="signin-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="email" id="login-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Contraseña</label>
+                    <input type="password" id="login-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                    Entrar
+                </button>
+                <p class="text-center text-sm">
+                    ¿No tienes cuenta? 
+                    <a href="#" onclick="showRegisterForm()" class="text-blue-500 hover:text-blue-600">Regístrate</a>
+                </p>
+            </form>
+        </div>
+    </div>
 
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD9Do3nEXf2QQWr4dKzrk2oyr_UB3ByTlE",
-            authDomain: "thebestgore-4bd6d.firebaseapp.com",
-            databaseURL: "https://thebestgore-4bd6d-default-rtdb.firebaseio.com",
-            projectId: "thebestgore-4bd6d",
-            storageBucket: "thebestgore-4bd6d.appspot.com",
-            messagingSenderId: "615685617268",
-            appId: "1:615685617268:web:63c280e698eeaaf11b0321",
-            measurementId: "G-SXYJ04BTPM"
-        };
+    <!-- Página Principal (visible después del login) -->
+    <div id="home-screen" class="hidden">
+        <!-- Barra de Navegación -->
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <h1 class="text-xl font-bold">TheForo</h1>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="relative" id="profile-dropdown">
+                            <button onclick="toggleProfileMenu()" class="flex items-center space-x-2">
+                                <img id="profile-image" src="placeholder-profile.png" alt="Profile" class="h-8 w-8 rounded-full">
+                                <span id="user-nick" class="text-gray-700"></span>
+                            </button>
+                            <div id="profile-menu" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                                <div class="py-1">
+                                    <a href="#" onclick="showProfileSettings()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        Editar Perfil
+                                    </a>
+                                    <a href="#" onclick="logout()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        Cerrar Sesión
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const database = getDatabase(app);
+        <!-- Contenido Principal -->
+        <main class="max-w-7xl mx-auto px-4 py-6">
+            <div class="flex">
+                <!-- Barra Lateral -->
+                <div class="w-64 pr-4">
+                    <button onclick="showUploadForm()" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                        Subir Contenido
+                    </button>
+                </div>
+                
+                <!-- Feed de Videos -->
+                <div class="flex-1">
+                    <div id="content-feed" class="space-y-6">
+                        <!-- Los videos se cargarán aquí dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 
-        // Verificar si hay un usuario autenticado
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // Si hay un usuario autenticado, redirigir a home
-                window.location.href = 'home.html';
-            }
-        });
+    <!-- Modal de Subida de Contenido -->
+    <div id="upload-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+            <h2 class="text-2xl font-bold mb-4">Subir Contenido</h2>
+            <form id="upload-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Título</label>
+                    <input type="text" id="content-title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Archivo</label>
+                    <input type="file" id="content-file" accept="video/*,image/*" class="mt-1 block w-full" required>
+                </div>
+                <div class="hidden" id="upload-progress">
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-1">Progreso: <span id="progress-text">0%</span></p>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="hideUploadForm()" class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                        Subir
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        // Manejar el registro de usuarios
-        document.getElementById('register-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const nick = document.getElementById('nick').value;
-
-            try {
-                // Crear el usuario en Firebase Auth
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                // Guardar información adicional en la base de datos
-                await set(ref(database, 'users/' + user.uid), {
-                    nick: nick,
-                    email: email,
-                    profilePic: '',
-                    createdAt: Date.now()
-                });
-
-                alert('Usuario registrado exitosamente');
-                window.location.href = 'home.html';
-            } catch (error) {
-                let errorMessage = 'Error en el registro: ';
-                switch (error.code) {
-                    case 'auth/email-already-in-use':
-                        errorMessage += 'El correo electrónico ya está registrado';
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage += 'El correo electrónico no es válido';
-                        break;
-                    case 'auth/operation-not-allowed':
-                        errorMessage += 'El registro de usuarios está deshabilitado';
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage += 'La contraseña es demasiado débil';
-                        break;
-                    default:
-                        errorMessage += error.message;
-                }
-                alert(errorMessage);
-            }
-        });
-
-        // Manejar el inicio de sesión
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                window.location.href = 'home.html';
-            } catch (error) {
-                let errorMessage = 'Error en el inicio de sesión: ';
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                        errorMessage += 'El correo electrónico no es válido';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage += 'Este usuario ha sido deshabilitado';
-                        break;
-                    case 'auth/user-not-found':
-                        errorMessage += 'No existe un usuario con este correo';
-                        break;
-                    case 'auth/wrong-password':
-                        errorMessage += 'Contraseña incorrecta';
-                        break;
-                    default:
-                        errorMessage += error.message;
-                }
-                alert(errorMessage);
-            }
-        });
-    </script>
-
-    <script>
-        // Función para mostrar u ocultar formularios
-        function toggleForms(formType) {
-            const registerForm = document.getElementById('registerForm');
-            const loginForm = document.getElementById('loginForm');
-
-            if (formType === 'register') {
-                registerForm.style.display = 'block';
-                loginForm.style.display = 'none';
-            } else {
-                registerForm.style.display = 'none';
-                loginForm.style.display = 'block';
-            }
-        }
-    </script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore-compat.js"></script>
+    
+    <!-- Scripts de la aplicación -->
+    <script src="firebase-config.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
