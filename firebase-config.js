@@ -6,8 +6,8 @@ const firebaseConfig = {
     projectId: "thebestgore-4bd6d",
     storageBucket: "thebestgore-4bd6d.appspot.com",
     messagingSenderId: "615685617268",
-    appId: "1:615685617268:web:63c280e698eeaaf11b0321",
-    measurementId: "G-SXYJ04BTPM"
+    appId: "1:615685617268:web:648fb7fcb3e133151b0321",
+    measurementId: "G-EP2LYTJ3CE"
 };
 
 // Inicializar Firebase
