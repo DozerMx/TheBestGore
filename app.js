@@ -1,3 +1,8 @@
+// Inicialización de Firebase (asegúrate de que esto viene después de cargar firebase-config.js)
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
 // Variables globales y elementos DOM
 const welcomeScreen = document.getElementById('welcome-screen');
 const loginForm = document.getElementById('login-form');
