@@ -8,15 +8,15 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-gray-100">
-    <!-- Pantalla de Inicio (visible cuando no hay sesión) -->
+    <!-- Pantalla de Inicio -->
     <div id="welcome-screen" class="min-h-screen flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-            <h1 class="text-3xl font-bold text-center mb-6">Bienvenido a TheForo</h1>
+            <h1 class="text-3xl font-bold text-center mb-6 neon-title">Bienvenido a TheForo</h1>
             <div class="space-y-4">
-                <button onclick="showLoginForm()" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                <button onclick="showLoginForm()" class="btn w-full">
                     Iniciar Sesión
                 </button>
-                <button onclick="showRegisterForm()" class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">
+                <button onclick="showRegisterForm()" class="btn w-full">
                     Registrarse
                 </button>
             </div>
@@ -26,21 +26,21 @@
     <!-- Formulario de Registro -->
     <div id="register-form" class="hidden min-h-screen flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-            <h2 class="text-2xl font-bold text-center mb-6">Registro</h2>
+            <h2 class="text-2xl font-bold text-center mb-6 neon-title">Registro</h2>
             <form id="signup-form" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" id="signup-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <input type="email" id="signup-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-900 p-2" required>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Nick</label>
-                    <input type="text" id="signup-nick" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <input type="text" id="signup-nick" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-900 p-2" required>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Contraseña</label>
-                    <input type="password" id="signup-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <input type="password" id="signup-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-900 p-2" required>
                 </div>
-                <button type="submit" class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600">
+                <button type="submit" class="btn w-full">
                     Crear Cuenta
                 </button>
                 <p class="text-center text-sm">
@@ -54,17 +54,17 @@
     <!-- Formulario de Login -->
     <div id="login-form" class="hidden min-h-screen flex items-center justify-center">
         <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-            <h2 class="text-2xl font-bold text-center mb-6">Iniciar Sesión</h2>
+            <h2 class="text-2xl font-bold text-center mb-6 neon-title">Iniciar Sesión</h2>
             <form id="signin-form" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Email</label>
-                    <input type="email" id="login-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <input type="email" id="login-email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-900 p-2" required>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Contraseña</label>
-                    <input type="password" id="login-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <input type="password" id="login-password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-900 p-2" required>
                 </div>
-                <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                <button type="submit" class="btn w-full">
                     Entrar
                 </button>
                 <p class="text-center text-sm">
@@ -75,7 +75,7 @@
         </div>
     </div>
 
-    <!-- Página Principal (visible después del login) -->
+    <!-- Página Principal -->
     <div id="home-screen" class="hidden">
         <!-- Barra de Navegación -->
         <nav class="bg-white shadow-lg">
@@ -83,13 +83,13 @@
                 <div class="flex justify-between h-16">
                     <div class="flex">
                         <div class="flex-shrink-0 flex items-center">
-                            <h1 class="text-xl font-bold">TheForo</h1>
+                            <h1 class="text-xl font-bold neon-title">TheForo</h1>
                         </div>
                     </div>
                     <div class="flex items-center">
                         <div class="relative" id="profile-dropdown">
                             <button onclick="toggleProfileMenu()" class="flex items-center space-x-2">
-                                <img id="profile-image" src="placeholder-profile.png" alt="Profile" class="h-8 w-8 rounded-full">
+                                <img id="profile-image" src="https://via.placeholder.com/32" alt="Profile" class="h-8 w-8 rounded-full">
                                 <span id="user-nick" class="text-gray-700"></span>
                             </button>
                             <div id="profile-menu" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
@@ -113,45 +113,45 @@
             <div class="flex">
                 <!-- Barra Lateral -->
                 <div class="w-64 pr-4">
-                    <button onclick="showUploadForm()" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                    <button onclick="showUploadForm()" class="btn w-full">
                         Subir Contenido
                     </button>
                 </div>
                 
-                <!-- Feed de Videos -->
+                <!-- Feed de Contenido -->
                 <div class="flex-1">
                     <div id="content-feed" class="space-y-6">
-                        <!-- Los videos se cargarán aquí dinámicamente -->
+                        <!-- El contenido se cargará dinámicamente -->
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Modal de Subida de Contenido -->
-    <div id="upload-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-            <h2 class="text-2xl font-bold mb-4">Subir Contenido</h2>
+    <!-- Modal de Subida -->
+    <div id="upload-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center modal-overlay">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full modal-content">
+            <h2 class="text-2xl font-bold mb-4 neon-title">Subir Contenido</h2>
             <form id="upload-form" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Título</label>
-                    <input type="text" id="content-title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required>
+                    <input type="text" id="content-title" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-gray-900 p-2" required>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Archivo</label>
                     <input type="file" id="content-file" accept="video/*,image/*" class="mt-1 block w-full" required>
                 </div>
                 <div class="hidden" id="upload-progress">
-                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    <div class="progress-bar">
+                        <div class="progress-bar-fill" style="width: 0%"></div>
                     </div>
                     <p class="text-sm text-gray-600 mt-1">Progreso: <span id="progress-text">0%</span></p>
                 </div>
                 <div class="flex justify-end space-x-3">
-                    <button type="button" onclick="hideUploadForm()" class="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600">
+                    <button type="button" onclick="hideUploadForm()" class="btn bg-gray-500">
                         Cancelar
                     </button>
-                    <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">
+                    <button type="submit" class="btn">
                         Subir
                     </button>
                 </div>
@@ -160,10 +160,11 @@
     </div>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-storage-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.x.x/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-analytics-compat.js"></script>
     
     <!-- Scripts de la aplicación -->
     <script src="firebase-config.js"></script>
