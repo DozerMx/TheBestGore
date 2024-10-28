@@ -1,158 +1,100 @@
-// Home.js
+// home.js
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js";
-import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
-import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-storage.js";
+import { auth, database, storage } from './firebaseConfig.js';
+import { ref as dbRef, get, update } from 'firebase/database';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { onAuthStateChanged } from 'firebase/auth';
+import { logoutUser } from './auth.js';
 
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyD9Do3nEXf2QQWr4dKzrk2oyr_UB3ByTlE",
-  authDomain: "thebestgore-4bd6d.firebaseapp.com",
-  databaseURL: "https://thebestgore-4bd6d-default-rtdb.firebaseio.com/",
-  projectId: "thebestgore-4bd6d",
-  storageBucket: "thebestgore-4bd6d.appspot.com",
-  messagingSenderId: "615685617268",
-  appId: "1:615685617268:web:63c280e698eeaaf11b0321",
-  measurementId: "G-SXYJ04BTPM"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
-const storage = getStorage(app);
-
-// HTML Elements
-const profileIcon = document.getElementById("profile-icon");
-const profileMenu = document.getElementById("profile-menu");
-const welcomeMessage = document.getElementById("welcome-message");
-const signOutButton = document.getElementById("sign-out-button");
-const uploadForm = document.getElementById("upload-form");
-const fileInput = document.getElementById("file-upload");
-const progressBar = document.getElementById("upload-progress");
-const sidebarToggle = document.getElementById("sidebar-toggle");
-const sidebarContent = document.querySelector(".sidebar-content");
-const feed = document.getElementById("feed");
-
-// Toggle Profile Menu
-profileIcon.addEventListener("click", () => {
-  profileMenu.classList.toggle("visible");
-});
-
-// Check User Authentication State
+// Verificar autenticación al cargar la página
 onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const userRef = ref(db, 'users/' + user.uid);
-    const userSnapshot = await get(userRef);
-    const userData = userSnapshot.val();
-    welcomeMessage.textContent = `¡Bienvenido, ${userData.nick}!`;
-
-    // Update profile picture if exists
-    if (userData.photoURL) {
-      profileIcon.src = userData.photoURL;
+    if (!user) {
+        // Si no hay usuario autenticado, redirigir al login
+        window.location.href = 'index.html';
+        return;
     }
-  } else {
-    window.location.href = "index.html"; // Redirect to login page if not logged in
-  }
+
+    try {
+        // Obtener datos del usuario
+        const userSnapshot = await get(dbRef(database, `users/${user.uid}`));
+        if (userSnapshot.exists()) {
+            const userData = userSnapshot.val();
+            
+            // Actualizar UI con datos del usuario
+            document.getElementById('welcome-message').textContent = `Bienvenido, ${userData.nick}!`;
+            if (userData.profilePic) {
+                document.getElementById('profile-pic').src = userData.profilePic;
+            }
+        }
+    } catch (error) {
+        console.error('Error al cargar datos del usuario:', error);
+    }
 });
 
-// Sign Out
-signOutButton.addEventListener("click", () => {
-  signOut(auth)
-    .then(() => {
-      window.location.href = "index.html";
-    })
-    .catch((error) => {
-      console.error("Error signing out:", error);
-    });
+// Manejar cierre de sesión
+document.getElementById('logout-button')?.addEventListener('click', async () => {
+    await logoutUser();
 });
 
-// Toggle Sidebar
-sidebarToggle.addEventListener("click", () => {
-  sidebarContent.classList.toggle("expanded");
-});
+// Función para subir foto de perfil
+export const uploadProfilePic = async (file) => {
+    const user = auth.currentUser;
+    if (!user || !file) return;
 
-// Upload Multimedia Content
-uploadForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  const file = fileInput.files[0];
-  if (file) {
-    const fileRef = storageRef(storage, `uploads/${auth.currentUser.uid}/${file.name}`);
-    const uploadTask = uploadBytesResumable(fileRef, file);
-
-    uploadTask.on(
-      "state_changed",
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        progressBar.value = progress;
-      },
-      (error) => {
-        console.error("Error uploading file:", error);
-      },
-      async () => {
-        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        const uploadRef = ref(db, 'uploads/' + auth.currentUser.uid + '/' + file.name);
-        await set(uploadRef, {
-          uid: auth.currentUser.uid,
-          url: downloadURL,
-          type: file.type,
-          name: file.name,
-          timestamp: new Date().toISOString()
+    try {
+        // Crear referencia para la imagen
+        const imageRef = storageRef(storage, `profile-pics/${user.uid}`);
+        
+        // Subir archivo
+        await uploadBytes(imageRef, file);
+        
+        // Obtener URL de descarga
+        const downloadURL = await getDownloadURL(imageRef);
+        
+        // Actualizar perfil del usuario
+        await update(dbRef(database, `users/${user.uid}`), {
+            profilePic: downloadURL
         });
 
-        // Display uploaded file in the feed
-        displayUploadedContent(downloadURL, file.type);
-      }
-    );
-  }
-});
+        // Actualizar imagen en la UI
+        document.getElementById('profile-pic').src = downloadURL;
+        
+        alert('Foto de perfil actualizada exitosamente');
+    } catch (error) {
+        console.error('Error al subir la foto de perfil:', error);
+        alert('Error al subir la foto de perfil');
+    }
+};
 
-// Display Uploaded Content
-function displayUploadedContent(url, fileType) {
-  const contentDiv = document.createElement("div");
-  contentDiv.className = fileType.startsWith("image/") ? "photo" : "video";
+// Función para editar nick
+export const editNick = async (newNick) => {
+    const user = auth.currentUser;
+    if (!user || !newNick) return;
 
-  if (fileType.startsWith("image/")) {
-    const img = document.createElement("img");
-    img.src = url;
-    contentDiv.appendChild(img);
-  } else if (fileType.startsWith("video/")) {
-    const video = document.createElement("video");
-    video.src = url;
-    video.controls = true;
-    contentDiv.appendChild(video);
-  }
+    try {
+        await update(dbRef(database, `users/${user.uid}`), {
+            nick: newNick
+        });
+        
+        document.getElementById('welcome-message').textContent = `Bienvenido, ${newNick}!`;
+        alert('Nick actualizado exitosamente');
+    } catch (error) {
+        console.error('Error al actualizar el nick:', error);
+        alert('Error al actualizar el nick');
+    }
+};
 
-  feed.appendChild(contentDiv);
-}
+// Funciones de UI
+window.toggleProfileMenu = () => {
+    const menu = document.getElementById('profile-menu');
+    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+};
 
-// Registration Function
-async function registerUser(email, password, nick) {
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    await set(ref(db, 'users/' + user.uid), {
-      uid: user.uid,
-      email: email,
-      nick: nick,
-      photoURL: null // or provide a default photo URL
-    });
-    console.log("User registered successfully:", user);
-  } catch (error) {
-    console.error("Error registering user:", error);
-    alert(error.message); // Display error message to user
-  }
-}
+window.toggleSidebar = () => {
+    const sidebar = document.getElementById('sidebar-content');
+    sidebar.style.display = sidebar.style.display === 'none' ? 'block' : 'none';
+};
 
-// Login Function
-async function loginUser(email, password) {
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    console.log("User logged in successfully");
-  } catch (error) {
-    console.error("Error logging in:", error);
-    alert(error.message); // Display error message to user
-  }
-}
+// Exportar funciones que necesitan ser accesibles desde el HTML
+window.uploadProfilePic = uploadProfilePic;
+window.editNick = editNick;
