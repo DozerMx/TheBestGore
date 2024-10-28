@@ -52,11 +52,116 @@
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="auth.js"></script>
+    <!-- Firebase App (la base principal de Firebase) -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD9Do3nEXf2QQWr4dKzrk2oyr_UB3ByTlE",
+            authDomain: "thebestgore-4bd6d.firebaseapp.com",
+            databaseURL: "https://thebestgore-4bd6d-default-rtdb.firebaseio.com",
+            projectId: "thebestgore-4bd6d",
+            storageBucket: "thebestgore-4bd6d.appspot.com",
+            messagingSenderId: "615685617268",
+            appId: "1:615685617268:web:63c280e698eeaaf11b0321",
+            measurementId: "G-SXYJ04BTPM"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        // Verificar si hay un usuario autenticado
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Si hay un usuario autenticado, redirigir a home
+                window.location.href = 'home.html';
+            }
+        });
+
+        // Manejar el registro de usuarios
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const nick = document.getElementById('nick').value;
+
+            try {
+                // Crear el usuario en Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                // Guardar información adicional en la base de datos
+                await set(ref(database, 'users/' + user.uid), {
+                    nick: nick,
+                    email: email,
+                    profilePic: '',
+                    createdAt: Date.now()
+                });
+
+                alert('Usuario registrado exitosamente');
+                window.location.href = 'home.html';
+            } catch (error) {
+                let errorMessage = 'Error en el registro: ';
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        errorMessage += 'El correo electrónico ya está registrado';
+                        break;
+                    case 'auth/invalid-email':
+                        errorMessage += 'El correo electrónico no es válido';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage += 'El registro de usuarios está deshabilitado';
+                        break;
+                    case 'auth/weak-password':
+                        errorMessage += 'La contraseña es demasiado débil';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                alert(errorMessage);
+            }
+        });
+
+        // Manejar el inicio de sesión
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                window.location.href = 'home.html';
+            } catch (error) {
+                let errorMessage = 'Error en el inicio de sesión: ';
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        errorMessage += 'El correo electrónico no es válido';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage += 'Este usuario ha sido deshabilitado';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage += 'No existe un usuario con este correo';
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += 'Contraseña incorrecta';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                alert(errorMessage);
+            }
+        });
+    </script>
+
     <script>
         // Función para mostrar u ocultar formularios
         function toggleForms(formType) {
@@ -71,33 +176,6 @@
                 loginForm.style.display = 'block';
             }
         }
-
-        // Manejador del formulario de registro
-        document.getElementById('register-form').addEventListener('submit', async (event) => {
-            event.preventDefault(); // Evita el comportamiento por defecto del formulario
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const nick = document.getElementById('nick').value;
-
-            await registerUser(email, password, nick); // Llama a la función de registro
-
-            // Redirigir a home.html
-            window.location.href = 'home.html'; 
-        });
-
-        // Manejador del formulario de inicio de sesión
-        document.getElementById('login-form').addEventListener('submit', async (event) => {
-            event.preventDefault(); // Evita el comportamiento por defecto del formulario
-
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-
-            await loginUser(email, password); // Llama a la función de inicio de sesión
-
-            // Redirigir a home.html
-            window.location.href = 'home.html'; 
-        });
     </script>
 </body>
 </html>
