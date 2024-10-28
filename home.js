@@ -1,9 +1,11 @@
-// Firebase Config
+// Home.js
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js";
-import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updateProfile } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-auth.js";
+import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-database.js";
 import { getStorage, ref as storageRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.14.0/firebase-storage.js";
 
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyD9Do3nEXf2QQWr4dKzrk2oyr_UB3ByTlE",
   authDomain: "thebestgore-4bd6d.firebaseapp.com",
@@ -41,7 +43,6 @@ profileIcon.addEventListener("click", () => {
 // Check User Authentication State
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    // Display welcome message with user's Nickname
     const userRef = ref(db, 'users/' + user.uid);
     const userSnapshot = await get(userRef);
     const userData = userSnapshot.val();
@@ -51,33 +52,6 @@ onAuthStateChanged(auth, async (user) => {
     if (userData.photoURL) {
       profileIcon.src = userData.photoURL;
     }
-
-    // Handle uploading new profile picture
-    document.getElementById("update-photo-button").addEventListener("click", async () => {
-      const file = fileInput.files[0];
-      if (file) {
-        const fileRef = storageRef(storage, `profilePictures/${user.uid}`);
-        const uploadTask = uploadBytesResumable(fileRef, file);
-
-        uploadTask.on(
-          "state_changed",
-          (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            progressBar.value = progress;
-          },
-          (error) => {
-            console.error("Error uploading profile picture:", error);
-          },
-          async () => {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            await updateProfile(user, { photoURL: downloadURL });
-            await set(userRef, { ...userData, photoURL: downloadURL }, { merge: true });
-            profileIcon.src = downloadURL;
-            alert("Foto de perfil actualizada correctamente.");
-          }
-        );
-      }
-    });
   } else {
     window.location.href = "index.html"; // Redirect to login page if not logged in
   }
@@ -119,7 +93,6 @@ uploadForm.addEventListener("submit", (event) => {
       },
       async () => {
         const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-        // Save the uploaded file information to Realtime Database
         const uploadRef = ref(db, 'uploads/' + auth.currentUser.uid + '/' + file.name);
         await set(uploadRef, {
           uid: auth.currentUser.uid,
@@ -153,4 +126,33 @@ function displayUploadedContent(url, fileType) {
   }
 
   feed.appendChild(contentDiv);
+}
+
+// Registration Function
+async function registerUser(email, password, nick) {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    await set(ref(db, 'users/' + user.uid), {
+      uid: user.uid,
+      email: email,
+      nick: nick,
+      photoURL: null // or provide a default photo URL
+    });
+    console.log("User registered successfully:", user);
+  } catch (error) {
+    console.error("Error registering user:", error);
+    alert(error.message); // Display error message to user
+  }
+}
+
+// Login Function
+async function loginUser(email, password) {
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    console.log("User logged in successfully");
+  } catch (error) {
+    console.error("Error logging in:", error);
+    alert(error.message); // Display error message to user
+  }
 }
