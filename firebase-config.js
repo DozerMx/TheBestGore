@@ -13,30 +13,31 @@ const firebaseConfig = {
 // Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
 
-// Obtener referencias a los servicios que usaremos
+// Obtener referencias a los servicios
 const auth = firebase.auth();
 const db = firebase.firestore();
 const storage = firebase.storage();
 const analytics = firebase.analytics();
 
-// Función para verificar el estado de autenticación
+// Exportar las referencias globalmente
+window.auth = auth;
+window.db = db;
+window.storage = storage;
+window.analytics = analytics;
+
+// Verificar estado de autenticación
 function checkAuth() {
     auth.onAuthStateChanged(user => {
         if (user) {
-            // Usuario está autenticado
             showHomeScreen(user);
         } else {
-            // Usuario no está autenticado
             showWelcomeScreen();
         }
     });
 }
 
-// Exportar las referencias para usar en otros archivos
-window.db = db;
-window.auth = auth;
-window.storage = storage;
+// Exportar función de verificación
 window.checkAuth = checkAuth;
 
-// Iniciar la verificación de autenticación cuando se carga la página
+// Iniciar verificación al cargar
 document.addEventListener('DOMContentLoaded', checkAuth);
